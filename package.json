@@ -1,0 +1,38 @@
+{
+  "name": "mean-hr-backend",
+  "version": "1.0.0",
+  "description": "Simple HR application.",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moeabdol/mean-hr-backend.git"
+  },
+  "keywords": [
+    "hr",
+    "expressjs",
+    "backend"
+  ],
+  "author": "moeabdol <mohd.a.saed@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/moeabdol/mean-hr-backend/issues"
+  },
+  "homepage": "https://github.com/moeabdol/mean-hr-backend#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.4",
+    "express": "^4.15.4",
+    "express-session": "^1.15.5",
+    "morgan": "^1.8.2",
+    "multer": "^1.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.6.1"
+  }
+}
