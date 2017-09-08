@@ -74,4 +74,43 @@ describe('Controller: Users', () => {
       })
       .end(done);
   });
+
+  it('GET /api/users/:id should return a specific user', (done) => {
+    request(app)
+      .get(`/api/users/${admin._id}`)
+      .expect('Content-Type', /application\/json/)
+      .expect(200)
+      .expect((res) => {
+        res.body._id.should.equal(admin._id.toString());
+        res.body.username.should.equal(admin.username);
+        res.body.email.should.equal(admin.email);
+        res.body.password.should.equal(admin.password);
+        res.body.role.should.equal(admin.role);
+      })
+      .end(done);
+  });
+
+  it('GET /api/users/:id with invalid id should return error', (done) => {
+    request(app)
+      .get('/api/users/12345')
+      .expect('Content-Type', /application\/json/)
+      .expect(400)
+      .expect((res) => {
+        res.body.message.should.contain('Invalid user ID.');
+      })
+      .end(done);
+  });
+
+  it('GET /api/users/:id for non-existing user should return error',
+    (done) => {
+      request(app)
+        .get('/api/users/59b28e08f3bd00a8ce1efe3c')
+        .expect('Content-Type', /application\/json/)
+        .expect(404)
+        .expect((res) => {
+          res.body.message.should.contain('User not found.');
+        })
+        .end(done);
+    }
+  );
 });
