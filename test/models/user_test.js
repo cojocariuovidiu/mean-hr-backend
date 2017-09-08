@@ -11,7 +11,7 @@ describe('Model: User', () => {
     admin = new User({
       username: 'admin',
       email: 'admin@example.com',
-      password: '12345',
+      password: '12345678',
       role: 'admin',
       avatar: ''
     });
@@ -19,7 +19,7 @@ describe('Model: User', () => {
     hr = new User({
       username: 'hr',
       email: 'hr@example.com',
-      password: '12345',
+      password: '12345678',
       role: 'hr',
       avatar: ''
     });
@@ -27,7 +27,7 @@ describe('Model: User', () => {
     manager = new User({
       username: 'manager',
       email: 'manager@example.com',
-      password: '12345',
+      password: '12345678',
       role: 'manager',
       avatar: ''
     });
@@ -35,7 +35,7 @@ describe('Model: User', () => {
     staff = new User({
       username: 'staff',
       email: 'staff@example.com',
-      password: '12345',
+      password: '12345678',
       role: 'staff',
       avatar: ''
     });
@@ -70,7 +70,7 @@ describe('Model: User', () => {
     let user = new User({
       username: '',
       email: 'x@example.com',
-      password: '12345'
+      password: '12345678'
     });
 
     user.save(user, (err) => {
@@ -84,7 +84,7 @@ describe('Model: User', () => {
     let user = new User({
       username: '     ',
       email: 'x@example.com',
-      password: '12345'
+      password: '12345678',
     });
 
     user.save(user, (err) => {
@@ -99,7 +99,7 @@ describe('Model: User', () => {
       let user = new User({
         username: 'x',
         email: 'x@example.com',
-        password: '12345'
+        password: '12345678'
       });
 
       user.save(user, (err) => {
@@ -115,7 +115,7 @@ describe('Model: User', () => {
       let user = new User({
         username: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         email: 'x@example.com',
-        password: '12345'
+        password: '12345678'
       });
 
       user.save(user, (err) => {
@@ -130,7 +130,7 @@ describe('Model: User', () => {
     let user = new User({
       username: 'xxxxx',
       email: '',
-      password: '12345'
+      password: '12345678'
     });
 
     user.save(user, (err) => {
@@ -143,12 +143,26 @@ describe('Model: User', () => {
     let user = new User({
       username: 'dummy',
       email: '        ',
-      password: '12345'
+      password: '12345678'
     });
 
     user.save(user, (err) => {
       err.errors.email.message.should
         .contain('Email is required.');
+      done();
+    });
+  });
+
+  it('should validate that email must be a valid email address', (done) => {
+    let user = new User({
+      username: 'dummy',
+      email: 'some invalid email',
+      password: '12345678'
+    });
+
+    user.save(user, (err) => {
+      err.errors.email.message.should
+        .contain('Email is not a valid email address.');
       done();
     });
   });
@@ -166,11 +180,27 @@ describe('Model: User', () => {
     });
   });
 
+  it('should validate that password must be at least (8) characters',
+    (done) => {
+      let user = new User({
+        username: 'xxxxx',
+        email: 'x@example.com',
+        password: '12345'
+      });
+
+      user.save(user, (err) => {
+        err.errors.password.message.should
+          .contain('Password must be at least (8) characters.');
+        done();
+      });
+    }
+  );
+
   it('should validate that role is required', (done) => {
     let user = new User({
       username: 'xxxxx',
       email: 'xxxxx@example.com',
-      password: '12345',
+      password: '12345678',
       role: ''
     });
 
@@ -182,9 +212,9 @@ describe('Model: User', () => {
 
   it('should assert that default user role is staff', (done) => {
     let user = new User({
-      username: 'dummy',
+      username: 'dummyx',
       email: 'dummy@example.com',
-      password: '12345'
+      password: '12345678'
     });
 
     user.save(user, (err, user) => {

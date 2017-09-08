@@ -24,7 +24,42 @@ const show = (req, res) => {
   });
 };
 
+const create = (req, res) => {
+  let username, email, password, role, avatar;
+
+  if (req.body.username) username = req.body.username;
+  if (req.body.email) email = req.body.email;
+  if (req.body.password) password = req.body.password;
+  if (req.body.role) role = req.body.role;
+  if (req.body.avatar) avatar = req.body.avatar;
+
+  let newUser = new User({ username, email, password, role, avatar });
+
+  newUser.save((err) => {
+    if (err) {
+      if (err.code === 11000) return res.status(400).json({
+        message: 'User already exists.'
+      });
+
+      if (err.errors.username) return res.status(400).json({
+        message: err.errors.username.message
+      });
+
+      if (err.errors.email) return res.status(400).json({
+        message: err.errors.email.message
+      });
+
+      if (err.errors.password) return res.status(400).json({
+        message: err.errors.password.message
+      });
+    }
+
+    res.status(201).json({ message: 'User created successfully.'} );
+  });
+};
+
 module.exports = {
   index,
-  show
+  show,
+  create
 };

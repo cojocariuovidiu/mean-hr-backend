@@ -15,10 +15,16 @@ const UserSchema = new Schema({
     trim: true,
     required: [true, 'Email is required.'],
     unique: true,
+    validate: {
+      validator: (email) => {
+        return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email);
+      }, message: 'Email is not a valid email address.'
+    }
   },
   password: {
     type: String,
-    required: [true, 'Password is required.']
+    required: [true, 'Password is required.'],
+    minlength: [8, 'Password must be at least (8) characters.']
   },
   role: {
     type: String,
