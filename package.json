@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "test": "mocha test/**/*.js",
+    "cov": "istanbul cover _mocha test/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -25,14 +27,22 @@
   },
   "homepage": "https://github.com/moeabdol/mean-hr-backend#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.2",
     "cors": "^2.8.4",
+    "csurf": "^1.9.0",
     "express": "^4.15.4",
     "express-session": "^1.15.5",
+    "jsonwebtoken": "^8.0.0",
+    "mongoose": "^4.11.10",
     "morgan": "^1.8.2",
     "multer": "^1.3.0"
   },
   "devDependencies": {
-    "eslint": "^4.6.1"
+    "chai": "^4.1.2",
+    "eslint": "^4.6.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.5.0",
+    "supertest": "^3.0.0"
   }
 }
