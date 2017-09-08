@@ -1,8 +1,7 @@
 process.env.NODE_ENV = 'test';
 require('dotenv').config();
 
-const chai = require('chai');
-// const should = chai.should();
+require('chai').should();
 const User = require('../../models/user');
 
 describe('Model: User', () => {
@@ -63,6 +62,135 @@ describe('Model: User', () => {
       if (err) done(err);
 
       count.should.equal(4);
+      done();
+    });
+  });
+
+  it('should validate that username is required', (done) => {
+    let user = new User({
+      username: '',
+      email: 'x@example.com',
+      password: '12345'
+    });
+
+    user.save(user, (err) => {
+      err.errors.username.message.should
+        .contain('Username is required.');
+      done();
+    });
+  });
+
+  it('should validate that username must not be empty spaces', (done) => {
+    let user = new User({
+      username: '     ',
+      email: 'x@example.com',
+      password: '12345'
+    });
+
+    user.save(user, (err) => {
+      err.errors.username.message.should
+        .contain('Username is required.');
+      done();
+    });
+  });
+
+  it('should validate that username must be at least (2) characters',
+    (done) => {
+      let user = new User({
+        username: 'x',
+        email: 'x@example.com',
+        password: '12345'
+      });
+
+      user.save(user, (err) => {
+        err.errors.username.message.should
+          .contain('Username must be at least (2) characters.');
+        done();
+      });
+    }
+  );
+
+  it('should validate that username must be at most (50) characters',
+    (done) => {
+      let user = new User({
+        username: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        email: 'x@example.com',
+        password: '12345'
+      });
+
+      user.save(user, (err) => {
+        err.errors.username.message.should
+          .contain('Username must be at most (50) characters.');
+        done();
+      });
+    }
+  );
+
+  it('should validate that email is required', (done) => {
+    let user = new User({
+      username: 'xxxxx',
+      email: '',
+      password: '12345'
+    });
+
+    user.save(user, (err) => {
+      err.errors.email.message.should.contain('Email is required.');
+      done();
+    });
+  });
+
+  it('should validate that email must not be empty spaces', (done) => {
+    let user = new User({
+      username: 'dummy',
+      email: '        ',
+      password: '12345'
+    });
+
+    user.save(user, (err) => {
+      err.errors.email.message.should
+        .contain('Email is required.');
+      done();
+    });
+  });
+
+  it('should validate that password is required', (done) => {
+    let user = new User({
+      username: 'xxxxx',
+      email: 'xxxxx@example.com',
+      password: ''
+    });
+
+    user.save(user, (err) => {
+      err.errors.password.message.should.contain('Password is required.');
+      done();
+    });
+  });
+
+  it('should validate that role is required', (done) => {
+    let user = new User({
+      username: 'xxxxx',
+      email: 'xxxxx@example.com',
+      password: '12345',
+      role: ''
+    });
+
+    user.save(user, (err) => {
+      err.errors.role.message.should.contain('Role is required.');
+      done();
+    });
+  });
+
+  it('should assert that default user role is staff', (done) => {
+    let user = new User({
+      username: 'dummy',
+      email: 'dummy@example.com',
+      password: '12345'
+    });
+
+    user.save(user, (err, user) => {
+      if (err) return done(err);
+
+      user.role.should.equal('staff');
       done();
     });
   });
