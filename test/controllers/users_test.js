@@ -69,7 +69,6 @@ describe('Controller: Users', () => {
         res.body[0]._id.should.equal(admin._id.toString());
         res.body[1].username.should.equal(hr.username);
         res.body[2].email.should.equal(manager.email);
-        res.body[3].password.should.equal('12345678');
         res.body[3].role.should.equal(staff.role);
       })
       .end(done);
@@ -84,7 +83,6 @@ describe('Controller: Users', () => {
         res.body._id.should.equal(admin._id.toString());
         res.body.username.should.equal(admin.username);
         res.body.email.should.equal(admin.email);
-        res.body.password.should.equal(admin.password);
         res.body.role.should.equal(admin.role);
       })
       .end(done);
@@ -132,7 +130,7 @@ describe('Controller: Users', () => {
           should.exist(user);
           user.username.should.equal('moeabdol');
           user.email.should.equal('admin.r99@gmail.com');
-          user.password.should.equal('12345678');
+          user.password.should.not.equal('12345678');
         });
       })
       .end(done);
@@ -351,7 +349,7 @@ describe('Controller: Users', () => {
             should.exist(user);
             user.username.should.equal('staff to manager');
             user.email.should.equal('promotedstaff@example.com');
-            user.password.should.equal('1234567890');
+            user.password.should.not.equal('1234567890');
             user.role.should.equal('manager');
             user.avatar.should.equal('avatar');
           });

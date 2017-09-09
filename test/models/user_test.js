@@ -224,5 +224,20 @@ describe('Model: User', () => {
       done();
     });
   });
+
+  it('should encrypt the password before saving user', (done) => {
+    let user = new User({
+      username: 'dummyxxx',
+      email: 'dummyxxx@example.com',
+      password: '12345678'
+    });
+
+    user.save(user, (err, user) => {
+      if (err) return done(err);
+
+      user.password.should.not.equal('12345678');
+      done();
+    });
+  });
 });
 

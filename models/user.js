@@ -1,5 +1,8 @@
 const mongoose = require('../config/mongoose');
+const bcrypt   = require('bcryptjs');
 const Schema = mongoose.Schema;
+
+const SALT_FACTOR = 10;
 
 const UserSchema = new Schema({
   username: {
@@ -38,5 +41,20 @@ const UserSchema = new Schema({
 });
 
 UserSchema.index({ username: 1, email: 1 }, { unique: true });
+
+UserSchema.pre('save', function(next) {
+  if (this.isModified('password') || this.isNew) {
+    bcrypt.genSalt(SALT_FACTOR, (err, salt) => {
+      if (err) return next(err);
+      bcrypt.hash(this.password, salt, (err, hash) => {
+        if (err) return next(err);
+        this.password = hash;
+        next();
+      });
+    });
+  } else {
+    next();
+  }
+});
 
 module.exports = mongoose.model('User', UserSchema);
