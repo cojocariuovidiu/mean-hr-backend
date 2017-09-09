@@ -1,4 +1,6 @@
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 const register = (req, res) => {
   let username, email, password;
@@ -29,6 +31,52 @@ const register = (req, res) => {
     }
 
     res.status(201).json({ message: 'User registered successfully.'} );
+  });
+};
+
+const authenticate = (req, res) => {
+  if (!req.body.username) return res.status(400).json({
+    message: 'Username is required.'
+  });
+
+  if (!req.body.password) return res.status(400).json({
+    message: 'Password is required.'
+  });
+
+  User.findOne({ username: req.body.username }, (err, user) => {
+    if (err) return res.status(500).json({
+      message: 'Oops! Something went wrong.'
+    });
+
+    if (!user) return res.status(400).json({
+      message: 'User does not exists.'
+    });
+
+    if (req.body.password.length < 8) res.status(400).json({
+      message: 'Password must be at least (8) characters.'
+    });
+
+    user.comparePassword(req.body.password, (err, isMatch) => {
+      if (err) return res.status(500).jsone({
+        message: 'Oops! Something went wrong.'
+      });
+
+      if (!isMatch) return res.status(401).json({
+        message: 'Invalid username and/or password.'
+      });
+
+      const token = jwt.sign({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }, config.secret, { expiresIn: '7d' });
+
+      res.status(200).json({
+        token: 'JWT ' + token,
+        message: 'User authenticated successfully.'
+      });
+    });
   });
 };
 
@@ -94,6 +142,7 @@ const update = (req, res) => {
 
 module.exports = {
   register,
+  authenticate,
   index,
   show,
   update

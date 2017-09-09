@@ -13,7 +13,6 @@ describe('Model: User', () => {
       email: 'admin@example.com',
       password: '12345678',
       role: 'admin',
-      avatar: ''
     });
 
     hr = new User({
@@ -21,7 +20,6 @@ describe('Model: User', () => {
       email: 'hr@example.com',
       password: '12345678',
       role: 'hr',
-      avatar: ''
     });
 
     manager = new User({
@@ -29,7 +27,6 @@ describe('Model: User', () => {
       email: 'manager@example.com',
       password: '12345678',
       role: 'manager',
-      avatar: ''
     });
 
     staff = new User({
@@ -37,7 +34,6 @@ describe('Model: User', () => {
       email: 'staff@example.com',
       password: '12345678',
       role: 'staff',
-      avatar: ''
     });
 
     User.insertMany([admin, hr, manager, staff], (err, users) => {
@@ -225,7 +221,7 @@ describe('Model: User', () => {
     });
   });
 
-  it('should encrypt the password before saving user', (done) => {
+  it('should encrypt the password before saving new user', (done) => {
     let user = new User({
       username: 'dummyxxx',
       email: 'dummyxxx@example.com',
@@ -237,6 +233,44 @@ describe('Model: User', () => {
 
       user.password.should.not.equal('12345678');
       done();
+    });
+  });
+
+  it('should match if password and hash match', (done) => {
+    let newUser = new User({
+      username: 'new user',
+      email: 'new@user.com',
+      password: '12345678'
+    });
+
+    newUser.save((err, user) => {
+      if (err) return done(err);
+
+      user.comparePassword('12345678', (err, isMatch) => {
+        if (err) return done(err);
+
+        isMatch.should.be.true;
+        done();
+      });
+    });
+  });
+
+  it('should not match if password and hash do not match', (done) => {
+    let newUser = new User({
+      username: 'anorther new user',
+      email: 'anothernew@user.com',
+      password: '12345678'
+    });
+
+    newUser.save((err, user) => {
+      if (err) return done(err);
+
+      user.comparePassword('1234567890', (err, isMatch) => {
+        if (err) return done(err);
+
+        isMatch.should.be.false;
+        done();
+      });
     });
   });
 });
