@@ -58,8 +58,45 @@ const create = (req, res) => {
   });
 };
 
+const update = (req, res) => {
+  User.findById(req.params.id, (err, user) => {
+    if (err) return res.status(400).json({
+      message: 'Invalid user ID.'
+    });
+
+    if (!user) return res.status(404).json({
+      message: 'User not found.'
+    });
+
+    if (req.body.username) user.username = req.body.username;
+    if (req.body.email) user.email = req.body.email;
+    if (req.body.password) user.password = req.body.password;
+    if (req.body.role) user.role = req.body.role;
+    if (req.body.avatar) user.avatar = req.body.avatar;
+
+    user.save((err) => {
+      if (err) {
+        if (err.errors.username) return res.status(400).json({
+          message: err.errors.username.message
+        });
+
+        if (err.errors.email) return res.status(400).json({
+          message: err.errors.email.message
+        });
+
+        if (err.errors.password) return res.status(400).json({
+          message: err.errors.password.message
+        });
+      }
+
+      res.status(200).json({ message: 'User updated successfully.'} );
+    });
+  });
+};
+
 module.exports = {
   index,
   show,
-  create
+  create,
+  update
 };

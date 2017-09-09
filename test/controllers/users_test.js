@@ -1,9 +1,9 @@
 process.env.NODE_ENV = 'test';
 require('dotenv').config();
 
-require('chai').should();
-const app     = require('../../app');
+const should  = require('chai').should();
 const request = require('supertest');
+const app     = require('../../app');
 const User    = require('../../models/user');
 
 describe('Controller: Users', () => {
@@ -114,21 +114,34 @@ describe('Controller: Users', () => {
     }
   );
 
-  it('POST /api/users should create a new user', (done) => {
-    request(app)
-      .post('/api/users')
-      .send({
-        username: 'moeabdol',
-        email: 'admin.r99@gmail.com',
-        password: '12345678'
-      })
-      .expect('Content-Type', /application\/json/)
-      .expect(201)
-      .expect((res) => {
-        res.body.message.should.contain('User created successfully.');
-      })
-      .end(done);
-  });
+  it('POST /api/users with valid credentials should create a new user',
+    (done) => {
+      request(app)
+        .post('/api/users')
+        .send({
+          username: 'moeabdol',
+          email: 'admin.r99@gmail.com',
+          password: '12345678',
+          role: 'hr',
+          avatar: 'avatar'
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(201)
+        .expect((res) => {
+          res.body.message.should.contain('User created successfully.');
+          User.findOne({ username: 'moeabdol' }, (err, user) => {
+            if (err) return done(err);
+            should.exist(user);
+            user.username.should.equal('moeabdol');
+            user.email.should.equal('admin.r99@gmail.com');
+            user.password.should.equal('12345678');
+            user.role.should.equal('hr');
+            user.avatar.should.equal('avatar');
+          });
+        })
+        .end(done);
+    }
+  );
 
   it('POST /api/users should return error if username already exists', (done) => {
     request(app)
@@ -306,6 +319,156 @@ describe('Controller: Users', () => {
         username: 'xoxo',
         email: 'admin.r99@gmail.com',
         password: '1234'
+      })
+      .expect('Content-Type', /application\/json/)
+      .expect(400)
+      .expect((res) => {
+        res.body.message.should.contain('Password must be at least (8) ' +
+          'characters.');
+      })
+      .end(done);
+  });
+
+  it('PUT /api/users/:id with valid credentials should update user',
+    (done) => {
+      request(app)
+        .put(`/api/users/${staff._id}`)
+        .send({
+          username: 'staff to manager',
+          email: 'promotedstaff@example.com',
+          password: '1234567890',
+          role: 'manager',
+          avatar: 'avatar'
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(200)
+        .expect((res) => {
+          res.body.message.should.contain('User updated successfully.');
+          User.findById(staff._id, (err, user) => {
+            if (err) return done(err);
+            should.exist(user);
+            user.username.should.equal('staff to manager');
+            user.email.should.equal('promotedstaff@example.com');
+            user.password.should.equal('1234567890');
+            user.role.should.equal('manager');
+            user.avatar.should.equal('avatar');
+          });
+        })
+        .end(done);
+    }
+  );
+
+  it('PUT /api/users/:id with invalid id should return error', (done) => {
+    request(app)
+      .put('/api/users/12345')
+      .expect('Content-Type', /application\/json/)
+      .expect(400)
+      .expect((res) => {
+        res.body.message.should.contain('Invalid user ID.');
+      })
+      .end(done);
+  });
+
+  it('PUT /api/users/:id for non-existing user should return error',
+    (done) => {
+      request(app)
+        .put('/api/users/59b28e08f3bd00a8ce1efe3c')
+        .expect('Content-Type', /application\/json/)
+        .expect(404)
+        .expect((res) => {
+          res.body.message.should.contain('User not found.');
+        })
+        .end(done);
+    }
+  );
+
+  it('PUT /api/users/:id with username as white spaces should return error',
+    (done) => {
+      request(app)
+        .put(`/api/users/${staff._id}`)
+        .send({
+          username: '      ',
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(400)
+        .expect((res) => {
+          res.body.message.should.contain('Username is required.');
+        })
+        .end(done);
+    }
+  );
+
+  it('PUT /api/users/:id with username less than 2 characters should return ' +
+    'error', (done) => {
+    request(app)
+      .put(`/api/users/${staff._id}`)
+      .send({
+        username: 'a'
+      })
+      .expect('Content-Type', /application\/json/)
+      .expect(400)
+      .expect((res) => {
+        res.body.message.should.contain('Username must be at least (2) ' +
+          'characters.');
+      })
+      .end(done);
+  });
+
+  it('PUT /api/users/:id with username more than 50 characters should return' +
+    ' error', (done) => {
+    request(app)
+      .put(`/api/users/${staff._id}`)
+      .send({
+        username: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+      })
+      .expect('Content-Type', /application\/json/)
+      .expect(400)
+      .expect((res) => {
+        res.body.message.should.contain('Username must be at most (50) ' +
+          'characters.');
+      })
+      .end(done);
+  });
+
+  it('PUT /api/users/:id with email as white spaces should return error',
+    (done) => {
+      request(app)
+        .put(`/api/users/${staff._id}`)
+        .send({
+          email: '         ',
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(400)
+        .expect((res) => {
+          res.body.message.should.contain('Email is required.');
+        })
+        .end(done);
+    }
+  );
+
+  it('PUT /api/users/:id with invalid email address should return error',
+    (done) => {
+      request(app)
+        .put(`/api/users/${staff._id}`)
+        .send({
+          email: 'abcdefghijklmnop',
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(400)
+        .expect((res) => {
+          res.body.message.should.contain('Email is not a valid email ' +
+            'address.');
+        })
+        .end(done);
+    }
+  );
+
+  it('PUT /api/users/:id with password less than 8 characters shoulr return ' +
+   'error', (done) => {
+    request(app)
+      .put(`/api/users/${staff._id}`)
+      .send({
+        password: '123',
       })
       .expect('Content-Type', /application\/json/)
       .expect(400)
