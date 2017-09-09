@@ -114,72 +114,53 @@ describe('Controller: Users', () => {
     }
   );
 
-  it('POST /api/users with valid credentials should create a new user',
-    (done) => {
-      request(app)
-        .post('/api/users')
-        .send({
-          username: 'moeabdol',
-          email: 'admin.r99@gmail.com',
-          password: '12345678',
-          role: 'hr',
-          avatar: 'avatar'
-        })
-        .expect('Content-Type', /application\/json/)
-        .expect(201)
-        .expect((res) => {
-          res.body.message.should.contain('User created successfully.');
-          User.findOne({ username: 'moeabdol' }, (err, user) => {
-            if (err) return done(err);
-            should.exist(user);
-            user.username.should.equal('moeabdol');
-            user.email.should.equal('admin.r99@gmail.com');
-            user.password.should.equal('12345678');
-            user.role.should.equal('hr');
-            user.avatar.should.equal('avatar');
-          });
-        })
-        .end(done);
-    }
-  );
-
-  it('POST /api/users should return error if username already exists', (done) => {
+  it('POST /api/users/register with valid credentials should create a new ' +
+    'user', (done) => {
     request(app)
-      .post('/api/users')
+      .post('/api/users/register')
       .send({
         username: 'moeabdol',
         email: 'admin.r99@gmail.com',
         password: '12345678'
       })
       .expect('Content-Type', /application\/json/)
-      .expect(400)
+      .expect(201)
       .expect((res) => {
-        res.body.message.should.contain('User already exists.');
+        res.body.message.should.contain('User registered successfully.');
+        User.findOne({ username: 'moeabdol' }, (err, user) => {
+          if (err) return done(err);
+          should.exist(user);
+          user.username.should.equal('moeabdol');
+          user.email.should.equal('admin.r99@gmail.com');
+          user.password.should.equal('12345678');
+        });
       })
       .end(done);
   });
 
-  it('POST /api/users without username should return error', (done) => {
-    request(app)
-      .post('/api/users')
-      .send({
-        email: 'admin.r99@gmail.com',
-        password: '12345678'
-      })
-      .expect('Content-Type', /application\/json/)
-      .expect(400)
-      .expect((res) => {
-        res.body.message.should.contain('Username is required.');
-      })
-      .end(done);
-  });
-
-  it('POST /api/users with username as white spaces should return error',
+  it('POST /api/users/register should return error if username already exists',
     (done) => {
       request(app)
-        .post('/api/users')
+        .post('/api/users/register')
         .send({
-          username: '      ',
+          username: 'moeabdol',
+          email: 'admin.r99@gmail.com',
+          password: '12345678'
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(400)
+        .expect((res) => {
+          res.body.message.should.contain('User already exists.');
+        })
+        .end(done);
+    }
+  );
+
+  it('POST /api/users/register without username should return error',
+    (done) => {
+      request(app)
+        .post('/api/users/register')
+        .send({
           email: 'admin.r99@gmail.com',
           password: '12345678'
         })
@@ -192,10 +173,27 @@ describe('Controller: Users', () => {
     }
   );
 
-  it('POST /api/users with username less than 2 characters should return ' +
+  it('POST /api/users/register with username as white spaces should return ' +
     'error', (done) => {
     request(app)
-      .post('/api/users')
+      .post('/api/users/register')
+      .send({
+        username: '      ',
+        email: 'admin.r99@gmail.com',
+        password: '12345678'
+      })
+      .expect('Content-Type', /application\/json/)
+      .expect(400)
+      .expect((res) => {
+        res.body.message.should.contain('Username is required.');
+      })
+      .end(done);
+  });
+
+  it('POST /api/users/register with username less than 2 characters should ' +
+    'return error', (done) => {
+    request(app)
+      .post('/api/users/register')
       .send({
         username: 'a',
         email: 'admin.r99@gmail.com',
@@ -210,10 +208,10 @@ describe('Controller: Users', () => {
       .end(done);
   });
 
-  it('POST /api/users with username more than 50 characters should return ' +
-    'error', (done) => {
+  it('POST /api/users/register with username more than 50 characters should ' +
+    'return error', (done) => {
     request(app)
-      .post('/api/users')
+      .post('/api/users/register')
       .send({
         username: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         email: 'admin.r99@gmail.com',
@@ -228,25 +226,27 @@ describe('Controller: Users', () => {
       .end(done);
   });
 
-  it('POST /api/users should return error if email already exists', (done) => {
-    request(app)
-      .post('/api/users')
-      .send({
-        username: 'another moeabdol',
-        email: 'admin.r99@gmail.com',
-        password: '12345678'
-      })
-      .expect('Content-Type', /application\/json/)
-      .expect(400)
-      .expect((res) => {
-        res.body.message.should.contain('User already exists.');
-      })
-      .end(done);
-  });
+  it('POST /api/users/register should return error if email already exists',
+    (done) => {
+      request(app)
+        .post('/api/users/register')
+        .send({
+          username: 'another moeabdol',
+          email: 'admin.r99@gmail.com',
+          password: '12345678'
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(400)
+        .expect((res) => {
+          res.body.message.should.contain('User already exists.');
+        })
+        .end(done);
+    }
+  );
 
-  it('POST /api/users without email should return error', (done) => {
+  it('POST /api/users/register without email should return error', (done) => {
     request(app)
-      .post('/api/users')
+      .post('/api/users/register')
       .send({
         username: 'yet another moeabdol',
         password: '12345678'
@@ -259,10 +259,10 @@ describe('Controller: Users', () => {
       .end(done);
   });
 
-  it('POST /api/users with email as white spaces should return error',
+  it('POST /api/users/register with email as white spaces should return error',
     (done) => {
       request(app)
-        .post('/api/users')
+        .post('/api/users/register')
         .send({
           username: 'yet another moeabdol',
           email: '           ',
@@ -277,10 +277,10 @@ describe('Controller: Users', () => {
     }
   );
 
-  it('POST /api/users with invalid email address should return error',
+  it('POST /api/users/register with invalid email address should return error',
     (done) =>{
       request(app)
-        .post('/api/users')
+        .post('/api/users/register')
         .send({
           username: 'yet another moeabdol',
           email: 'some invalid email',
@@ -296,25 +296,27 @@ describe('Controller: Users', () => {
     }
   );
 
-  it('POST /api/users without password should return error', (done) => {
-    request(app)
-      .post('/api/users')
-      .send({
-        username: 'yet another user',
-        email: 'admin.r99@gmail.com',
-      })
-      .expect('Content-Type', /application\/json/)
-      .expect(400)
-      .expect((res) => {
-        res.body.message.should.contain('Password is required.');
-      })
-      .end(done);
-  });
+  it('POST /api/users/register without password should return error',
+    (done) => {
+      request(app)
+        .post('/api/users/register')
+        .send({
+          username: 'yet another user',
+          email: 'admin.r99@gmail.com',
+        })
+        .expect('Content-Type', /application\/json/)
+        .expect(400)
+        .expect((res) => {
+          res.body.message.should.contain('Password is required.');
+        })
+        .end(done);
+    }
+  );
 
-  it('POST /api/users with password less than 8 characters should return ' +
-    'error', (done) => {
+  it('POST /api/users/register with password less than 8 characters should ' +
+    'return error', (done) => {
     request(app)
-      .post('/api/users')
+      .post('/api/users/register')
       .send({
         username: 'xoxo',
         email: 'admin.r99@gmail.com',
