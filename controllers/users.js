@@ -140,10 +140,59 @@ const update = (req, res) => {
   });
 };
 
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization.replace(/JWT /, '');
+
+  if (!token) return res.status(403).json({
+    message: 'No token provided'
+  });
+
+  jwt.verify(token, config.secret, (err, decoded) => {
+    if (err) return res.status(403).json({
+      message: 'Invalid token!'
+    });
+    req.decoded = decoded;
+    next();
+  });
+};
+
+const changePassword = (req, res) => {
+  User.findById(req.decoded.id, (err, user) => {
+    if (err) return res.status(500).json({
+      message: 'Oops! Something went wrong.'
+    });
+
+    if (!user) return res.status(404).json({
+      message: 'User not found.'
+    });
+
+    user.comparePassword(req.body.oldPassword, (err, isMatch) => {
+      if (err) return res.status(500).json({
+        message: 'Oops! Something went wrong.'
+      });
+
+      if (!isMatch) return res.status(401).json({
+        message: 'Invalid password.'
+      });
+
+      user.password = req.body.newPassword;
+      user.save((err) => {
+        if (err) return res.status(500).json({
+          message: 'Oops! Something went wrong.'
+        });
+
+        res.status(200).json({ message: 'Password updated successfully.' });
+      });
+    });
+  });
+};
+
 module.exports = {
   register,
   authenticate,
   index,
   show,
-  update
+  update,
+  verifyToken,
+  changePassword
 };
