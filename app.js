@@ -9,11 +9,13 @@ const bodyParser  = require('body-parser');
 const session     = require('express-session');
 const mongoose    = require('./config/mongoose');
 const usersRoutes = require('./routes/users');
+const path        = require('path');
 
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'uploads/images/')));
 
 app.use('/api', usersRoutes);
 

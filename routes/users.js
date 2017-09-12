@@ -8,5 +8,6 @@ router.get('/users', users.index);
 router.get('/users/:id', users.show);
 router.put('/users/:id', users.update);
 router.post('/users/changepassword', users.verifyToken, users.changePassword);
+router.post('/users/uploadavatar', users.verifyToken, users.uploadAvatar);
 
 module.exports = router;

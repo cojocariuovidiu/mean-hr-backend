@@ -1,6 +1,7 @@
-const User = require('../models/user');
-const jwt = require('jsonwebtoken');
+const User   = require('../models/user');
+const jwt    = require('jsonwebtoken');
 const config = require('../config');
+const multer = require('multer');
 
 const register = (req, res) => {
   let username, email, password;
@@ -187,6 +188,60 @@ const changePassword = (req, res) => {
   });
 };
 
+const uploadAvatar = (req, res) => {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/images');
+    },
+    filename: (req, file, cb) => {
+      if (!file.originalname.match(/\.(png)$/)) {
+        let err = new Error();
+        err.code = 'filetype';
+        return cb(err);
+      } else {
+        cb(null, file.originalname.replace(/\.png/, '') + '-' + Date.now() +
+          '.png');
+      }
+    }
+  });
+
+  const upload = multer({ storage: storage }).single('avatar');
+  upload(req, res, (err) => {
+    if (err) {
+      if (err.code === 'filetype') return res.status(400).json({
+        message: 'Invalid file type.'
+      });
+      return res.status(500).json({
+        message: 'Oops! Something went wrong.',
+        error: err
+      });
+    }
+
+    if (!req.file) return res.status(400).json({
+      message: 'No file was sent!'
+    });
+
+    User.findById(req.decoded.id, (err, user) => {
+      if (err) return res.status(500).json({
+        message: 'Oops! Something went wrong.'
+      });
+
+      if (!user) return res.status(404).json({
+        message: 'User not found.'
+      });
+
+      user.avatar = 'http://localhost:3000/' + req.file.filename;
+      user.save((err) => {
+        if (err) return res.status(500).json({
+          message: 'Oops! Something went wrong.'
+        });
+
+        res.status(200).json({ message: 'File uploaded successfully.' });
+      });
+    });
+  });
+};
+
 module.exports = {
   register,
   authenticate,
@@ -194,5 +249,6 @@ module.exports = {
   show,
   update,
   verifyToken,
-  changePassword
+  changePassword,
+  uploadAvatar
 };
